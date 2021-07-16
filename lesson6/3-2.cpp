@@ -2,7 +2,7 @@
  * @author: Bodan Chen
  * @Date: 2021-07-15 22:14:54
  * @LastEditors: Bodan Chen
- * @LastEditTime: 2021-07-15 22:28:43
+ * @LastEditTime: 2021-07-16 11:27:23
  * @Email: 18377475@buaa.edu.cn
  */
 #include <iostream>
@@ -13,6 +13,7 @@
 using namespace std;
 
 //[1,5]  f(t)=1/t
+//
 //[-1,1] f(x)=2/(2x+3)
 double fx(double x)
 {
