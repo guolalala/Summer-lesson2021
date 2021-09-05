@@ -1,0 +1,127 @@
+U = solvexue(-3, 3, 2, 200, 500);
+
+function y = u0(x)
+    %u0 - Myfun
+    %
+    % Syntax: y = u0(x)
+    %
+    % initial value
+    y = 5 * exp(2 * 1i * x - 25 * x * x / 4);
+end
+
+function psi = solvexue(xl, xr, T, N, M)
+    tau = T / M;
+    h = (xr - xl) / (N - 1);
+    mu = tau * 1i / (h^2);
+    x = zeros(N + 1, 1);
+    x(1) = xl - h / 2;
+
+    for j = 1:N
+        x(j + 1) = x(j) + h;
+    end
+
+    psi = zeros(N + 1, M + 1);
+
+    for j = 0:N
+        psi(j + 1, 1) = psi0(x(j + 1));
+    end
+
+    A = getA(M, tau);
+    a = zeros(M, 1);
+
+    for k = 1:M
+        a(k) = A(k + 1);
+    end
+
+    Mtrx = eye(N + 1);
+    Mtrx(1, 1) = -1 / h + A(1) / 2;
+    Mtrx(1, 2) = 1 / h + A(1) / 2;
+    Mtrx(N + 1, N) = -1 / h - A(1) / 2;
+    Mtrx(N + 1, N + 1) = 1 / h - A(1) / 2;
+
+    for j = 2:N
+        Mtrx(j, j - 1) = 1 / (2 * h^2);
+        Mtrx(j, j) = 1i / tau - 1 / h^2;
+        Mtrx(j, j + 1) = 1 / (2 * h^2);
+    end
+
+    b = zeros(N + 1, 1);
+
+    for n = 1:M
+        b = zeros(N + 1, 1);
+
+        for k = 1:n
+            b(1) = b(1) - a(k) * (psi(1, n - k + 1) + psi(2, n-k + 1)) / 2;
+            b(N + 1) = b(N + 1) + a(k) * (psi(N, n - k + 1) +
+            psi(N + 1, n - k + 1)) / 2;
+        end
+
+        for j = 2:N
+            b(j) = -psi(j + 1, n) / (2 * h^2) + psi(j, n) * (1i / tau
+            + 1 / h^2) - psi(j - 1, n) / (2 * h^2);
+        end
+
+        X = linsolve(Mtrx, b);
+        psi(:, n + 1) = X;
+    end
+
+    deltax = 10 / N;
+    x = -5:deltax:5;
+
+    for n = 1:10:M + 1
+        plot(x, abs(psi(:, n)));
+        axis([-5 5 0 1]);
+        drawnow;
+    end
+
+end
+
+% function ans = solvexue(xl, xr, R, T, h, M)
+% %solvexue - My solve func
+% %
+% % Syntax: ans = solvexue(xl,xr,R,T,h,M)
+% %
+% % xl for left value, xr for right value, T for time, M for grid number
+%     tau = T / M;
+%     N = (xr - xl) / h + 2 * (R / h);
+%     mu = 1i * tau / (h*h);
+
+%     A = zeros(N + 1, N + 1);
+
+%     for m = 1:N + 1
+
+%         if (m == 1)
+%             A(m, m) = 1 - 2 * mu;
+%             A(m, m + 1) = mu;
+%         elseif (m == N + 1)
+%             A(m, m) = 1 - 2 * mu;
+%             A(m, m - 1) = mu;
+%         else
+%             A(m, m) = 1 - 2 * mu;
+%             A(m, m - 1) = mu;
+%             A(m, m + 1) = mu;
+%         end
+
+%     end
+
+%     ans = zeros(N + 1, M + 1);
+%     x = zeros(N + 1, 1);
+%     x(1) = xl - R;
+
+%     for v = 1:N
+%         x(v + 1) = x(v) + h;
+%     end
+
+%     for v = 0:N
+%         ans(v + 1, 1) = u0(x(v + 1));
+%     end
+
+%     for n = 1:M
+%         ans(:, n + 1) = A * ans(:, n);
+
+%     end
+
+%     t = xl:h:xr;
+%     plot(t, abs(ans((N1 + 1):(N1 + N2 + 1), M + 1)));
+
+% end
